@@ -1,0 +1,32 @@
+# ============================================================
+#  Ota uchun reja-yordamchi bot — sozlamalar
+#  Bu faylni hech kimga bermang va GitHub'ga yuklamang!
+# ============================================================
+
+# @BotFather → /mybots → API Token → Revoke current token → YANGI token
+BOT_TOKEN=
+
+# Botni ishlatishga ruxsati bor Telegram ID lar (vergul bilan).
+OWNER_IDS=206004279
+
+# Eslatmalar kimga borsin?
+#   - Bo'sh qoldirsangiz: rejani kim qo'shsa, o'shanga boradi.
+#   - Otangizning ID sini yozsangiz: hamma eslatma faqat unga boradi.
+NOTIFY_ID=
+
+# Google kalendar manzili.
+#   - Xizmat akkaunti bilan: otangizning pochtasi, masalan otam@gmail.com
+#   - credentials.json bilan: primary
+CALENDAR_ID=primary
+
+# Baza fayli qayerda saqlansin.
+#   - O'z kompyuteringizda: bo'sh qoldiring (rejalar.db)
+#   - Railway/Docker'da Volume ichida: /app/data/rejalar.db
+DB_PATH=
+
+# Vaqt mintaqasi
+TZ=Asia/Tashkent
+
+# Railway uchun: service_account.json faylining butun mazmuni bir qatorda.
+# O'z serveringizda faylni yoniga qo'ysangiz, buni bo'sh qoldiring.
+GOOGLE_SERVICE_JSON=
