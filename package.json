@@ -1,0 +1,10 @@
+{
+  "name": "kafe-tolovlari",
+  "version": "1.0.0",
+  "description": "Kafe to'lovlari: sayt + Telegram bot + kunlik eslatma",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "preview": "node server.js --preview" },
+  "engines": { "node": ">=18" },
+  "license": "UNLICENSED",
+  "private": true
+}

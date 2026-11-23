@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kafe to'lovlari</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: ish quroli — aniq, xotirjam, kassir daftaridek ishonchli
+   IDEA: oshxona buyurtma relsi — har bir to'lov sanasi katta yozilgan chek
+   PICTURE: shu oyning to'lovlar ro'yxati — sanalar osilib turgan cheklar qatori
+   COLOUR and TYPE: espresso #2a1a12 tepa, oq cheklar, pomidor #e0442b xavf, za'faron #f0a417 yaqin; Rubik
+   LAYOUT: tepa band (oy, ko'rsatkichlar), eslatmalar, tablar, ro'yxat */
+:root{color-scheme:light dark;--bg:light-dark(#efece8,#141010);--card:light-dark(#fff,#1f1915);--ink:light-dark(#1d1410,#f3ece6);--mut:light-dark(#6d625b,#a99e96);--line:light-dark(#e2ddd7,#3a302a);--esp:#2a1a12;--red:#e0442b;--sun:#f0a417;--ok:light-dark(#2f7d5b,#5fbf91);--blue:light-dark(#2d5d9f,#8bb3ec)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Rubik,system-ui,sans-serif;overflow-x:clip}
+button,input,select,textarea{font:inherit;color:inherit}
+.band{padding:clamp(20px,3vw,40px) max(4vw,16px)}
+.top{background:var(--esp);color:#f6eee8}
+.wrap{max-width:1240px;margin:0 auto}
+.hrow{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+h1{font-size:clamp(28px,4vw,44px);line-height:1.05;margin:0;font-weight:700;text-wrap:balance}
+.sub{color:#cdbdb2;margin:6px 0 0;font-size:15px}
+.mnav{display:flex;align-items:center;gap:6px}
+.mnav b{font-size:20px;min-width:9.5em;text-align:center}
+.ib{min-width:44px;height:44px;border-radius:10px;border:1px solid #5a4337;background:transparent;color:#f6eee8;cursor:pointer;font-size:18px}
+.ib:hover{background:#3b281e}
+.btn{height:44px;padding:0 18px;border-radius:10px;border:0;background:var(--sun);color:#24170f;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
+.btn.red{background:var(--red);color:#fff}
+.btn.sm{height:38px;padding:0 12px;font-size:14px}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:#4a372c;border:1px solid #4a372c;border-radius:14px;overflow:hidden;margin-top:22px}
+.kpi{background:var(--esp);padding:14px 16px}
+.kpi span{display:block;font-size:13px;color:#cdbdb2}
+.kpi b{display:block;font-size:clamp(17px,1.75vw,23px);line-height:1.25}
+.kpi small{color:#cdbdb2;font-size:13px}
+.kpi.r b{color:#ff8a73}.kpi.y b{color:var(--sun)}
+.rate{display:flex;align-items:center;gap:8px;font-size:14px;color:#cdbdb2}
+.rate input{width:110px;height:38px;border-radius:8px;border:1px solid #5a4337;background:#3b281e;color:#fff;padding:0 10px;font-size:16px;text-align:right}
+.alerts{display:grid;gap:8px;margin-top:18px}
+.al{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;background:#3b281e;border-left:5px solid var(--sun);border-radius:10px;padding:10px 14px}
+.al.r{border-color:var(--red)}
+.al b{white-space:nowrap}.al .grow{flex:1}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:0 0 16px;padding-bottom:2px}
+.tab{height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;white-space:nowrap}
+.tab[aria-selected=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.filters input,.filters select{height:44px;border-radius:10px;border:1px solid var(--line);background:var(--card);padding:0 12px;font-size:16px}
+.filters input{flex:1 1 200px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+.list{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--card);border-radius:12px;padding:12px 14px;border:1px solid var(--line);border-left:6px solid var(--line)}
+.row.s-late{border-left-color:var(--red)}.row.s-soon,.row.s-today{border-left-color:var(--sun)}.row.s-paid{border-left-color:var(--ok)}.row.s-part{border-left-color:var(--blue)}
+.day{text-align:center;line-height:1}
+.day b{font-size:30px;display:block}.day small{font-size:13px;color:var(--mut)}
+.nm{font-weight:500;font-size:17px}
+.meta{font-size:14px;color:var(--mut);display:flex;flex-wrap:wrap;gap:4px 10px}
+.chip{display:inline-block;font-size:13px;padding:1px 8px;border-radius:99px;background:var(--bg);color:var(--ink);white-space:nowrap}
+.amt{text-align:right}
+.amt b{font-size:18px;white-space:nowrap;display:block}
+.amt small{display:block;font-size:13px;color:var(--mut);white-space:nowrap}
+.acts{display:flex;gap:6px;justify-content:flex-end;margin-top:6px;flex-wrap:wrap}
+.st{font-size:13px;font-weight:500;white-space:nowrap}
+.st.late{color:var(--red)}.st.soon,.st.today{color:light-dark(#9a6500,var(--sun))}.st.paid{color:var(--ok)}.st.part{color:var(--blue)}
+.side{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.side h3{margin:0 0 10px;font-size:17px}
+.bar{margin:10px 0}.bar div{display:flex;justify-content:space-between;font-size:14px;gap:8px}
+.bar i{display:block;height:8px;border-radius:4px;background:var(--bg);margin-top:4px;overflow:hidden}
+.bar i em{display:block;height:100%;background:var(--esp)}
+:root[data-theme=dark] .bar i em{background:var(--sun)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .bar i em{background:var(--sun)}}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--mut)}
+.presets{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden;font-size:15px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:13px;color:var(--mut);font-weight:500}
+td.n{text-align:right;white-space:nowrap}
+tr.storno td{color:var(--mut);text-decoration:line-through}
+.note{font-size:13px;color:var(--mut);margin-top:22px}
+.ov{position:fixed;inset:0;background:#0009;display:none;align-items:flex-start;justify-content:center;padding:4vh 12px;overflow:auto;z-index:9}
+.ov.on{display:flex}
+.md{background:var(--card);border-radius:16px;padding:20px;width:min(560px,100%)}
+.md h2{margin:0 0 14px;font-size:22px}
+.fg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.fg .w{grid-column:1/-1}
+label{display:grid;gap:4px;font-size:14px;color:var(--mut)}
+label input,label select,label textarea{height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 12px;font-size:16px;color:var(--ink)}
+label textarea{height:70px;padding:10px 12px;resize:vertical}
+.mf{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.warn{background:light-dark(#fdebe7,#3a1d17);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:12px}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10}
+.toast.on{opacity:1}
+pre,.scroll{overflow-x:auto}
+@media(max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi:first-child{grid-column:1/-1}}
+@media(max-width:600px){.al{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}.al .grow{grid-column:1/-1;order:-1}.al .btn{justify-self:end}.row{grid-template-columns:48px minmax(0,1fr)}.amt{grid-column:1/-1;text-align:left;display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}.amt .acts{margin:0;margin-left:auto}.day b{font-size:24px}.fg{grid-template-columns:minmax(0,1fr)}.mnav b{min-width:0;font-size:17px}table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 12px;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;color:var(--mut)}.stack td:empty{display:none}}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+<header class="band top"><div class="wrap">
+  <div class="hrow">
+    <div><h1>Kafe to'lovlari</h1><p class="sub" id="sync">Yuklanmoqda…</p></div>
+    <div class="mnav"><button class="ib" id="prev" aria-label="Oldingi oy">‹</button><b id="mlabel"></b><button class="ib" id="next" aria-label="Keyingi oy">›</button></div>
+    <div class="hrow" style="gap:10px"><label class="rate"><span id="rlab"></span> 1 $ =<input id="rate" inputmode="decimal" aria-label="Dollar kursi"> so'm</label><button class="btn" id="addBtn">+ To'lov qo'shish</button></div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div class="alerts" id="alerts"></div>
+</div></header>
+
+<main class="band"><div class="wrap">
+  <div class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-t="oy" aria-selected="true">Shu oy</button>
+    <button class="tab" role="tab" data-t="qarz" aria-selected="false">Qarzlar</button>
+    <button class="tab" role="tab" data-t="tarix" aria-selected="false">To'lovlar tarixi</button>
+    <button class="tab" role="tab" data-t="royxat" aria-selected="false">Doimiy to'lovlar</button>
+  </div>
+  <div class="filters" id="filters">
+    <input id="q" placeholder="Qidirish: nomi, kimga, izoh…" aria-label="Qidirish">
+    <select id="fc" aria-label="Turi"></select>
+    <select id="fs" aria-label="Holati"><option value="">Barcha holatlar</option><option value="late">Muddati o'tgan</option><option value="soon">Yaqinlashdi / bugun</option><option value="part">Qisman</option><option value="wait">Kutilmoqda</option><option value="paid">To'langan</option></select>
+    <button class="btn ghost" id="csv">CSV nusxalash</button>
+  </div>
+  <div id="view"></div>
+  <p class="note">Eslatmalar sayt ochilganda tepada chiqadi, Telegram bot esa har kuni belgilangan soatda yaqinlashayotgan to'lovlar va ertangi reja haqida xabar yuboradi. To'lovlar o'chirilmaydi: xato yozuv "storno" (bekor qilish) yozuvi bilan tuzatiladi va ikkalasi ham tarixda qoladi.</p>
+</div></main>
+
+<div class="ov" id="ov"><div class="md" id="md" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+{
+const CATS=["Ijara","Ishchilar maoshi","Elektr (svet)","Gaz","Suv","Internet","Chiqindi","Soliq","Mahsulot / xomashyo","Kredit","Boshqa"];
+const MON=["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"];
+const WD=["Yak","Dush","Sesh","Chor","Pay","Jum","Shan"];
+const METH=["Naqd","Plastik karta","Bank o'tkazmasi","Click / Payme","Boshqa"];
+const PRE=[["Ijara","Ijara",1,"USD"],["Maosh","Ishchilar maoshi",5,"UZS"],["Svet","Elektr (svet)",10,"UZS"],["Gaz","Gaz",10,"UZS"],["Suv","Suv",10,"UZS"],["Internet","Internet",1,"UZS"],["Chiqindi","Chiqindi",15,"UZS"],["Soliq","Soliq",20,"UZS"]];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const todayS=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+const curM=()=>todayS().slice(0,7);
+const addM=(p,k)=>{let [y,m]=p.split("-").map(Number);m+=k;while(m>12){m-=12;y++}while(m<1){m+=12;y--}return y+"-"+pad(m)};
+const mName=p=>MON[+p.slice(5)-1]+" "+p.slice(0,4);
+const dim=p=>new Date(+p.slice(0,4),+p.slice(5),0).getDate();
+const dayDiff=(a,b)=>Math.round((new Date(a)-new Date(b))/864e5);
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const fmt=(v,c)=>c==="USD"?"$"+(+v).toLocaleString("en-US",{maximumFractionDigits:2}):Math.round(v).toLocaleString("ru-RU").replace(/,/g," ")+" so'm";
+
+let S={items:{},pays:{},rate:12700,rates:{}},view=curM(),tab="oy",toastT;
+function rateFor(p){const ks=Object.keys(S.rates||{}).sort();if(!ks.length)return S.rate;let r=S.rates[ks[0]];for(const k of ks)if(k<=p)r=S.rates[k];return +r}
+const toUZS=(v,c,r)=>c==="USD"?v*(r||rateFor(view)):v;
+
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("on"),2600)}
+const TG=window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.initData?window.Telegram.WebApp:null;
+if(TG){try{TG.ready();TG.expand()}catch(e){}}
+async function api(p,b){const r=await fetch(p,{method:b?"POST":"GET",credentials:"same-origin",headers:Object.assign({"content-type":"application/json"},TG?{"x-tg-init":TG.initData}:{}),body:b?JSON.stringify(b):undefined});
+  if(r.status===401){noAuth();throw new Error("401")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||("HTTP "+r.status));return j}
+function noAuth(){$("sync").textContent="Kirish uchun ruxsat yo'q";openM(`<h2>Kirish kerak</h2><p>Saytni Telegram botdagi <b>"🌐 Saytni ochish"</b> tugmasi orqali oching. Shunda sizni avtomatik taniydi.</p>`)}
+let busy=0;
+async function pull(){if(busy)return;try{const d=await api("/api/state");if(busy)return;S.items=d.items||{};S.pays=d.pays||{};S.rate=d.rate||S.rate;S.rates=d.rates||{};
+  $("sync").textContent="Serverda saqlanadi · bot har kuni "+String(d.remindHour).padStart(2,"0")+":00 da eslatadi";render()}catch(e){if(e.message!=="401")$("sync").textContent="Server bilan aloqa yo'q — qayta urinilmoqda…"}}
+async function putItem(id,o){S.items[id]=o;render();busy++;try{await api("/api/item",{id,item:o})}catch(e){if(e.message!=="401")toast("Saqlanmadi: "+e.message)}finally{busy--}pull()}
+async function putPay(id,o){S.pays[id]=o;render();busy++;try{await api("/api/pay",{id,pay:o})}catch(e){delete S.pays[id];render();if(e.message!=="401")toast("To'lov saqlanmadi: "+e.message);throw e}finally{busy--}pull()}
+
+function amountFor(it,p){if(it.over&&it.over[p]!=null)return +it.over[p];const h=(it.amounts||[]).slice().sort((a,b)=>a.from<b.from?-1:1);let v=h.length?h[0].v:0;for(const x of h)if(x.from<=p)v=x.v;return +v}
+function inst(p){const out=[];for(const [id,it] of Object.entries(S.items)){
+  if(it.repeat==="once"){if(it.cancelled||!it.date||it.date.slice(0,7)!==p)continue;out.push(mk(id,it,p,it.date))}
+  else{if(it.start>p||(it.end&&p>it.end))continue;out.push(mk(id,it,p,p+"-"+pad(Math.min(it.day||1,dim(p)))))}}
+  return out.sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:a.it.name.localeCompare(b.it.name))}
+function paidFor(id,p){let s=0,n=0;for(const x of Object.values(S.pays))if(x.itemId===id&&x.period===p){s+=+x.amount;n++}return[s,n]}
+function mk(id,it,p,due){const amt=amountFor(it,p),[paid]=paidFor(id,p),rem=Math.max(0,amt-paid),dd=dayDiff(due,todayS());
+  let s="wait";if(amt>0&&paid>=amt)s="paid";else if(dd<0)s="late";else if(dd===0)s="today";else if(dd<=(it.remind??5))s="soon";else if(paid>0)s="part";
+  return{id,it,p,due,amt,paid,rem,dd,s}}
+const ST={paid:"To'langan",late:"Muddati o'tgan",today:"Bugun to'lash kerak",soon:"Yaqinlashdi",part:"Qisman to'langan",wait:"Kutilmoqda"};
+function stText(x){if(x.s==="late")return ST.late+" ("+(-x.dd)+" kun)"+(x.paid>0?", qisman":"");if(x.s==="soon")return x.dd+" kun qoldi";return ST[x.s]}
+function allOpen(){const ps=Object.values(S.items).map(i=>i.repeat==="once"?(i.date||"").slice(0,7):i.start).filter(Boolean).sort();if(!ps.length)return[];
+  let p=ps[0];const lim=addM(curM(),1),out=[];let g=0;while(p<=lim&&g++<60){out.push(...inst(p).filter(x=>x.rem>0));p=addM(p,1)}return out}
+
+function render(){
+  $("mlabel").textContent=mName(view);
+  if(document.activeElement!==$("rate"))$("rate").value=rateFor(view);$("rlab").textContent=mName(view)+" kursi:";
+  const L=inst(view),pays=Object.values(S.pays).filter(x=>x.period===view);
+  const due=L.reduce((s,x)=>s+toUZS(x.amt,x.it.cur,rateFor(x.p)),0),paid=pays.reduce((s,x)=>s+toUZS(+x.amount,x.cur,x.rateAt),0),rem=L.reduce((s,x)=>s+toUZS(x.rem,x.it.cur,rateFor(x.p)),0);
+  const open=allOpen(),late=open.filter(x=>x.dd<0),week=open.filter(x=>x.dd>=0&&x.dd<=7);
+  const sum=a=>a.reduce((s,x)=>s+toUZS(x.rem,x.it.cur,rateFor(x.p)),0);
+  $("kpis").innerHTML=`<div class="kpi"><span>${esc(mName(view))} — jami to'lanishi kerak</span><b>${fmt(due)}</b><small>${L.length} ta to'lov</small></div>
+  <div class="kpi"><span>To'langan</span><b>${fmt(paid)}</b><small>${due?Math.round(Math.min(paid,due)/due*100):0}%</small></div>
+  <div class="kpi"><span>Qolgan</span><b>${fmt(rem)}</b><small>shu oy bo'yicha</small></div>
+  <div class="kpi r"><span>Muddati o'tgan qarz</span><b>${fmt(sum(late))}</b><small>${late.length} ta, barcha oylar</small></div>
+  <div class="kpi y"><span>Yaqin 7 kunda</span><b>${fmt(sum(week))}</b><small>${week.length} ta to'lov</small></div>`;
+  const rem2=open.filter(x=>x.dd<0||x.dd<=(x.it.remind??5)).sort((a,b)=>a.dd-b.dd).slice(0,6);
+  $("alerts").innerHTML=rem2.map(x=>`<div class="al ${x.dd<0?"r":""}"><b>${x.dd<0?"Muddati o'tdi":x.dd===0?"Bugun":x.dd+" kundan keyin"}</b><span class="grow">${esc(x.it.name)} — ${esc(mName(x.p))}, muddat ${x.due.slice(8)}.${x.due.slice(5,7)}</span><b>${fmt(x.rem,x.it.cur)}</b><button class="btn sm" data-pay="${x.id}|${x.p}">To'lash</button></div>`).join("")+(open.filter(x=>x.dd<0||x.dd<=(x.it.remind??5)).length>6?`<div class="sub">…va yana bor — "Qarzlar" bo'limini oching</div>`:"");
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===tab));
+  const q=$("q").value.trim().toLowerCase(),fc=$("fc").value,fs=$("fs").value;
+  const match=x=>(!fc||x.it.cat===fc)&&(!q||[x.it.name,x.it.payee,x.it.note].join(" ").toLowerCase().includes(q))&&(!fs||(fs==="soon"?(x.s==="soon"||x.s==="today"):x.s===fs));
+  $("fs").style.display=tab==="tarix"||tab==="royxat"?"none":"";
+  let h="";
+  if(tab==="oy"){const F=L.filter(match);
+    h=`<div class="grid2"><div class="list">${F.length?F.map(rowH).join(""):emptyH(L.length)}</div>${sideH(L)}</div>`}
+  else if(tab==="qarz"){const F=open.filter(x=>x.dd<0||x.p<=curM()).filter(match);
+    h=`<div class="list">${F.length?F.map(rowH).join(""):'<div class="empty">Qarz yo\'q — hammasi vaqtida to\'langan.</div>'}</div>`}
+  else if(tab==="tarix")h=histH(q,fc);
+  else h=itemsH(q,fc);
+  $("view").innerHTML=h}
+
+function rowH(x){const d=new Date(x.due);const cur=x.it.cur;
+  return `<div class="row s-${x.s}"><div class="day"><b>${x.due.slice(8)}</b><small>${WD[d.getDay()]}${x.p!==view?"<br>"+MON[+x.p.slice(5)-1].slice(0,3):""}</small></div>
+  <div><div class="nm">${esc(x.it.name)}</div><div class="meta"><span class="chip">${esc(x.it.cat)}</span>${x.it.payee?`<span>→ ${esc(x.it.payee)}</span>`:""}${x.it.repeat==="once"?"<span>bir martalik</span>":"<span>har oy</span>"}${x.it.note?`<span>${esc(x.it.note)}</span>`:""}</div></div>
+  <div class="amt"><b>${fmt(x.amt,cur)}</b>${x.paid>0&&x.rem>0?`<small>to'landi ${fmt(x.paid,cur)} · qoldi ${fmt(x.rem,cur)}</small>`:""}${cur==="USD"?`<small>≈ ${fmt(toUZS(x.rem||x.amt,"USD",rateFor(x.p)))+" ("+rateFor(x.p).toLocaleString("ru-RU")+" kursda)"}</small>`:""}<span class="st ${x.s}">${stText(x)}</span>
+  <div class="acts">${x.rem>0?`<button class="btn sm" data-pay="${x.id}|${x.p}">To'lash</button>`:""}<button class="btn sm ghost" data-edit="${x.id}">Tahrir</button></div></div></div>`}
+function emptyH(n){return n?'<div class="empty">Filtr bo\'yicha hech narsa topilmadi.</div>':`<div class="empty"><b style="color:var(--ink);font-size:18px">Bu oyda hali to'lov yo'q</b><br>Kafengiz xarajatlarini qo'shing — tez boshlash uchun turini tanlang:<div class="presets">${PRE.map((p,i)=>`<button class="btn sm ghost" data-pre="${i}">+ ${p[0]}</button>`).join("")}</div></div>`}
+function sideH(L){const by={};let tot=0;for(const x of L){const v=toUZS(x.amt,x.it.cur);by[x.it.cat]=(by[x.it.cat]||0)+v;tot+=v}
+  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]);
+  return `<aside class="side"><h3>Xarajat turlari bo'yicha</h3>${rows.length?rows.map(([c,v])=>`<div class="bar"><div><span>${esc(c)}</span><b>${fmt(v)}</b></div><i><em style="width:${tot?v/tot*100:0}%"></em></i></div>`).join(""):'<p class="sub" style="color:var(--mut)">Ma\'lumot yo\'q</p>'}<p class="sub" style="color:var(--mut);font-size:13px">$ summalar ${esc(mName(view))} kursi (1 $ = ${rateFor(view).toLocaleString("ru-RU")} so'm) bilan so'mga o'girilgan.</p></aside>`}
+function histH(q,fc){const st=new Set(Object.values(S.pays).filter(x=>x.kind==="storno").map(x=>x.ref));
+  const P=Object.entries(S.pays).map(([id,x])=>({id,...x,it:S.items[x.itemId]||{name:"(o'chirilgan)",cat:""}})).filter(x=>x.period===view||window._allh).filter(x=>(!fc||x.it.cat===fc)&&(!q||[x.it.name,x.by,x.note,x.method].join(" ").toLowerCase().includes(q))).sort((a,b)=>a.at<b.at?1:-1);
+  return `<label style="display:flex;gap:8px;align-items:center;margin-bottom:10px;color:var(--ink)"><input type="checkbox" id="allh" style="width:20px;height:20px" ${window._allh?"checked":""}> Barcha oylarni ko'rsatish (aks holda faqat ${esc(mName(view))})</label>
+  ${P.length?`<div class="scroll"><table class="stack"><thead><tr><th>Sana</th><th>To'lov</th><th>Qaysi oy uchun</th><th>Summa</th><th>Usul</th><th>Kim to'ladi</th><th>Izoh / chek</th><th></th></tr></thead><tbody>${P.map(x=>`<tr class="${x.kind==="storno"||st.has(x.id)?"storno":""}"><td>${esc(x.date)}</td><td>${esc(x.it.name)}${x.kind==="storno"?" — <b>STORNO</b>":""}</td><td>${esc(mName(x.period))}</td><td class="n">${fmt(x.amount,x.cur)}</td><td>${esc(x.method)}</td><td>${esc(x.by)}</td><td>${esc(x.note)}</td><td>${x.kind!=="storno"&&!st.has(x.id)?`<button class="btn sm ghost" data-storno="${x.id}">Bekor qilish</button>`:""}</td></tr>`).join("")}</tbody></table></div>`:'<div class="empty">Bu davrda to\'lov kiritilmagan.</div>'}`}
+function itemsH(q,fc){const I=Object.entries(S.items).filter(([,i])=>(!fc||i.cat===fc)&&(!q||[i.name,i.payee,i.note].join(" ").toLowerCase().includes(q))).sort((a,b)=>a[1].name.localeCompare(b[1].name));
+  return I.length?`<div class="scroll"><table class="stack"><thead><tr><th>Nomi</th><th>Turi</th><th>Summa</th><th>Muddat</th><th>Davr</th><th>Holat</th><th></th></tr></thead><tbody>${I.map(([id,i])=>{const off=i.repeat==="once"?i.cancelled:(i.end&&i.end<curM());
+  return `<tr><td>${esc(i.name)}${i.payee?`<br><small style="color:var(--mut)">→ ${esc(i.payee)}</small>`:""}</td><td>${esc(i.cat)}</td><td class="n">${fmt(amountFor(i,curM()),i.cur)}</td><td>${i.repeat==="once"?esc(i.date):"har oy "+i.day+"-sana"}</td><td>${i.repeat==="once"?"bir martalik":esc(mName(i.start))+(i.end?" — "+esc(mName(i.end)):" dan")}</td><td>${off?"To'xtatilgan":"Faol"}</td><td><button class="btn sm ghost" data-edit="${id}">Tahrir</button></td></tr>`}).join("")}</tbody></table></div>`:'<div class="empty">Hali to\'lov turi qo\'shilmagan.</div>'}
+
+function openM(h){$("md").innerHTML=h;$("ov").classList.add("on");setTimeout(()=>$("md").querySelector("input,select")?.focus(),30)}
+function closeM(){$("ov").classList.remove("on")}
+function itemForm(id,pre){const it=id?S.items[id]:{name:pre?pre[0]:"",cat:pre?pre[1]:"Ijara",day:pre?pre[2]:1,cur:pre?pre[3]:"UZS",repeat:"monthly",remind:5,start:view,amounts:[]};
+  const amt=id?amountFor(it,view):"";
+  openM(`<h2>${id?"To'lovni tahrirlash":"Yangi to'lov"}</h2><form id="fi"><div class="fg">
+  <label class="w">To'lov nomi<input name="name" required value="${esc(it.name)}" placeholder="Masalan: Svet, Ijara, Oshpaz maoshi"></label>
+  <label>Turi<select name="cat">${CATS.map(c=>`<option ${c===it.cat?"selected":""}>${c}</option>`).join("")}</select></label>
+  <label>Kimga to'lanadi<input name="payee" value="${esc(it.payee)}" placeholder="Uy egasi, xodim ismi…"></label>
+  <label>Summa<input name="amt" required inputmode="decimal" value="${amt}" placeholder="0"></label>
+  <label>Valyuta<select name="cur"><option value="UZS" ${it.cur==="UZS"?"selected":""}>UZS (so'm)</option><option value="USD" ${it.cur==="USD"?"selected":""}>$ (dollar)</option></select></label>
+  <label>Takrorlanishi<select name="repeat" id="rep"><option value="monthly" ${it.repeat!=="once"?"selected":""}>Har oy</option><option value="once" ${it.repeat==="once"?"selected":""}>Bir martalik</option></select></label>
+  <label id="lday">Har oyning nechanchi sanasida<input name="day" type="number" min="1" max="31" value="${it.day||1}"></label>
+  <label id="lstart">Qaysi oydan boshlab<input name="start" type="month" value="${it.start||view}"></label>
+  <label id="ldate">To'lov sanasi<input name="date" type="date" value="${it.date||view+"-"+pad(Math.min(new Date().getDate(),dim(view)))}"></label>
+  <label>Necha kun oldin eslatsin<input name="remind" type="number" min="0" max="30" value="${it.remind??5}"></label>
+  <label class="w">Izoh<input name="note" value="${esc(it.note)}" placeholder="Shartnoma raqami, hisob raqami…"></label>
+  </div>${id&&it.repeat!=="once"?`<p class="sub" style="color:var(--mut);font-size:13px">Summani o'zgartirsangiz, yangi summa ${esc(mName(view))} dan boshlab qo'llanadi — oldingi oylar o'zgarmaydi.</p>`:""}
+  <div class="mf">${id?`<button type="button" class="btn red sm" id="stop">${it.repeat==="once"?"Bekor qilish":"Shu oydan to'xtatish"}</button>`:""}<span style="flex:1"></span><button type="button" class="btn ghost" data-close>Yopish</button><button class="btn">Saqlash</button></div></form>`);
+  const sync=()=>{const o=$("rep").value==="once";$("lday").style.display=$("lstart").style.display=o?"none":"";$("ldate").style.display=o?"":"none"};$("rep").onchange=sync;sync();
+  $("fi").onsubmit=e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.target));const v=parseFloat(String(f.amt).replace(/\s/g,"").replace(",","."));
+    if(!(v>0)){toast("Summani to'g'ri kiriting");return}
+    const o=JSON.parse(JSON.stringify(it));Object.assign(o,{name:f.name.trim(),cat:f.cat,payee:f.payee.trim(),cur:f.cur,repeat:f.repeat,remind:+f.remind||0,note:f.note.trim()});
+    if(f.repeat==="once"){o.date=f.date;o.amounts=[{from:"0000-00",v}];delete o.day}
+    else{o.day=Math.min(31,Math.max(1,+f.day||1));o.start=f.start||view;o.amounts=o.amounts||[];
+      if(!id)o.amounts=[{from:o.start,v}];else if(amountFor(it,view)!==v){o.amounts=o.amounts.filter(a=>a.from!==view).concat({from:view,v});if(o.over)delete o.over[view]}}
+    if(!id)o.createdAt=new Date().toISOString();o.updatedAt=new Date().toISOString();
+    putItem(id||uid("i"),o);closeM();toast("Saqlandi")};
+  if(id)$("stop").onclick=()=>{const o=JSON.parse(JSON.stringify(it));if(o.repeat==="once"){if(paidFor(id,o.date.slice(0,7))[1]){toast("To'lov kiritilgan — avval uni storno qiling");return}o.cancelled=true}else o.end=addM(view,-1);putItem(id,o);closeM();toast("To'xtatildi. Oldingi oylar tarixda qoladi")}}
+
+function payForm(id,p){const x=inst(p).find(y=>y.id===id);if(!x)return;const cur=x.it.cur,pid=uid("p");
+  let by="";try{by=localStorage.getItem("kafe-by")||""}catch(e){}
+  openM(`<h2>To'lash: ${esc(x.it.name)}</h2><p class="sub" style="color:var(--mut);margin-top:-8px">${esc(mName(p))} uchun · muddat ${x.due}</p><form id="fp"><div class="fg">
+  <label>Bu oy hisob summasi (${cur==="USD"?"$":"so'm"})<input name="bill" inputmode="decimal" value="${x.amt}"></label>
+  <label>Hozir to'lanayotgan summa<input name="amount" required inputmode="decimal" value="${x.rem}"></label>
+  <label>To'lov sanasi<input name="date" type="date" required value="${todayS()}"></label>
+  <label>Usul<select name="method">${METH.map(m=>`<option>${m}</option>`).join("")}</select></label>
+  <label>Kim to'ladi<input name="by" value="${esc(by)}" placeholder="Ism"></label>
+  <label>Chek raqami / izoh<input name="note" placeholder="Kvitansiya №…"></label>
+  </div><p class="sub" style="color:var(--mut);font-size:13px">Svet, gaz kabi har oy o'zgaradigan hisoblarda "Bu oy hisob summasi"ni kvitansiyadagi summaga o'zgartiring. Avval to'langan: ${fmt(x.paid,cur)}.</p><div id="pw"></div>
+  <div class="mf"><button type="button" class="btn ghost" data-close>Yopish</button><button class="btn" id="psave">To'lovni saqlash</button></div></form>`);
+  let ok=false;
+  $("fp").onsubmit=async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.target));const n=s=>parseFloat(String(s).replace(/\s/g,"").replace(",","."));
+    const bill=n(f.bill),a=n(f.amount);if(!(a>0)){toast("Summani kiriting");return}
+    if(bill>0&&a>bill-x.paid+1e-9&&!ok){$("pw").innerHTML=`<div class="warn">Diqqat: bu summa qoldiqdan (${fmt(Math.max(0,bill-x.paid),cur)}) ko'p. Ikki marta kiritilmaganini tekshiring. Baribir saqlash uchun yana bir marta bosing.</div>`;ok=true;return}
+    $("psave").disabled=true;try{localStorage.setItem("kafe-by",f.by)}catch(e){}
+    if(bill>0&&bill!==x.amt){const o=JSON.parse(JSON.stringify(x.it));o.over=Object.assign({},o.over,{[p]:bill});await putItem(id,o)}
+    try{await putPay(pid,{itemId:id,period:p,amount:a,cur,rateAt:rateFor(p),date:f.date,method:f.method,by:f.by.trim(),note:f.note.trim(),kind:"pay",at:new Date().toISOString()});closeM();toast("To'lov saqlandi")}catch(e){$("psave").disabled=false}}}
+function stornoForm(id){const x=S.pays[id],it=S.items[x.itemId]||{name:"?"};
+  openM(`<h2>To'lovni bekor qilish</h2><p>${esc(it.name)} · ${esc(mName(x.period))} · <b>${fmt(x.amount,x.cur)}</b> · ${esc(x.date)}</p><form id="fs2"><label>Sababi<input name="r" required placeholder="Masalan: ikki marta kiritilgan"></label><p class="sub" style="color:var(--mut);font-size:13px">Asl yozuv o'chirilmaydi — unga qarshi minus yozuv qo'shiladi va ikkalasi tarixda ko'rinadi.</p><div class="mf"><button type="button" class="btn ghost" data-close>Yopish</button><button class="btn red">Bekor qilish</button></div></form>`);
+  $("fs2").onsubmit=async e=>{e.preventDefault();const r=new FormData(e.target).get("r");try{await putPay(uid("s"),{itemId:x.itemId,period:x.period,amount:-x.amount,cur:x.cur,rateAt:x.rateAt,date:todayS(),method:x.method,by:x.by,note:"Storno: "+r,kind:"storno",ref:id,at:new Date().toISOString()});closeM();toast("Bekor qilindi")}catch(e){}}}
+
+function csv(){const rows=[["Sana","To'lov","Turi","Oy","Summa","Valyuta","Usul","Kim to'ladi","Izoh","Yozuv turi"]];
+  for(const x of Object.values(S.pays).sort((a,b)=>a.at<b.at?-1:1)){const it=S.items[x.itemId]||{};rows.push([x.date,it.name,it.cat,x.period,x.amount,x.cur,x.method,x.by,x.note,x.kind])}
+  return rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\n")}
+
+$("prev").onclick=()=>{view=addM(view,-1);render()};$("next").onclick=()=>{view=addM(view,1);render()};
+$("addBtn").onclick=()=>itemForm(null);
+$("fc").innerHTML='<option value="">Barcha turlar</option>'+CATS.map(c=>`<option>${c}</option>`).join("");
+["q","fc","fs"].forEach(i=>$(i).addEventListener("input",render));
+$("tabs").onclick=e=>{const t=e.target.closest(".tab");if(t){tab=t.dataset.t;render()}};
+let rt;$("rate").addEventListener("input",e=>{clearTimeout(rt);rt=setTimeout(async()=>{const v=parseFloat(e.target.value.replace(/\s/g,"").replace(",","."));if(v>0&&v!==rateFor(view)){S.rates=Object.assign({},S.rates,{[view]:v});S.rate=v;render();toast(mName(view)+" kursi saqlandi");try{await api("/api/rates",{rate:S.rate,rates:S.rates})}catch(er){if(er.message!=="401")toast("Kurs saqlanmadi")}}},700)});
+$("csv").onclick=async()=>{const t=csv();try{await navigator.clipboard.writeText(t);toast("CSV nusxalandi — Excel'ga joylashtiring")}catch(e){openM(`<h2>CSV</h2><textarea style="width:100%;height:260px">${esc(t)}</textarea><div class="mf"><button class="btn" data-close>Yopish</button></div>`)}};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-pay],[data-edit],[data-pre],[data-storno],[data-close]");if(e.target.id==="allh"){window._allh=e.target.checked;render();return}if(e.target===$("ov")){closeM();return}if(!b)return;
+  if(b.dataset.pay){const [i,p]=b.dataset.pay.split("|");payForm(i,p)}else if(b.dataset.edit)itemForm(b.dataset.edit);else if(b.dataset.pre)itemForm(null,PRE[+b.dataset.pre]);else if(b.dataset.storno)stornoForm(b.dataset.storno);else if("close" in b.dataset)closeM()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeM()});
+
+render();$("sync").textContent="Yuklanmoqda…";pull();setInterval(pull,20000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pull()});
+}
+</script>
+</body>
+</html>
